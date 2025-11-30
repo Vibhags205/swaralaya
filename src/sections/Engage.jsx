@@ -13,3 +13,11 @@ return (
 </section>
 )
 }
+const handleSubscribe = async () => {
+  await fetch("http://localhost:5000/api/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  alert("Subscribed Successfully!");
+};
