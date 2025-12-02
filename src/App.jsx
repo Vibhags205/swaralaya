@@ -3,6 +3,9 @@ import { Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home'
 import About from './pages/About'
 import Post from './pages/Post'
+import FeaturedReddit from "./pages/FeaturedReddit";
+
+<Route path="/Featured" element={<FeaturedReddit />} />
 
 
 export default function App() {

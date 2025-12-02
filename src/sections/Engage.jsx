@@ -1,4 +1,10 @@
+// Engage.jsx (Modified Code)
+
 import React, { useState } from 'react';
+
+// 🚨 Define the FormSubmit endpoint here
+// REPLACE 'your-owner-email@example.com' with the email you want the notification sent to.
+const FORMSUBMIT_URL = "https://formsubmit.co/ajax/gsvibha26@gmail.com";
 
 export default function Engage() {
   const [email, setEmail] = useState("");
@@ -8,32 +14,38 @@ export default function Engage() {
       alert("Please enter an email.");
       return;
     }
-    try {
-      // Prefer an explicit VITE API URL (for production). Otherwise use a
-      // relative `/api` path so the browser calls the same origin. During
-      // development Vite can proxy `/api` to the backend (see vite.config.js).
-      const API_BASE = import.meta.env.VITE_API_URL || "";
 
-      const res = await fetch(`${API_BASE}/api/subscribe`, {
+    try {
+      // 1. Create a FormData object for FormSubmit
+      const formData = new FormData();
+      formData.append("email", email);
+      
+      // OPTIONAL: Add a custom subject for the email you receive
+      formData.append("_subject", "New Subscriber ID!");
+
+      // 2. Send the request directly to the FormSubmit API
+      const res = await fetch(FORMSUBMIT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: formData, // FormSubmit uses FormData, not JSON
       });
 
+      // FormSubmit's AJAX endpoint returns a JSON response
       const data = await res.json().catch(() => ({}));
 
-      if (res.ok) {
-        alert(data.message || "Subscribed Successfully!");
+      if (res.ok && data.success) {
+        alert("Subscribed Successfully! Thanks!");
         setEmail("");
       } else {
-        alert(data.message || "Subscription failed");
+        // FormSubmit returns res.ok=true even on validation issues, but sets success: false.
+        alert(data.message || "Subscription failed.");
       }
     } catch (error) {
-      alert("Server error: could not reach API");
+      alert("Network error: Could not reach subscription service.");
       console.error(error);
     }
   };
 
+  // ... (rest of your return block is the same)
   return (
     <section className="engage card">
       <h2>Engage With Me</h2>
