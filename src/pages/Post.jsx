@@ -103,23 +103,21 @@ export default function Post() {
   if (!post) return <h2 style={{ padding: "20px" }}>Post not found</h2>;
 
   return (
-    <section className="container card">
-      <h2>{post.title}</h2>
+    <section className="post-center">
+      <h1 className="post-title">{post.title}</h1>
 
-      <p style={{ whiteSpace: "pre-line", lineHeight: "1.7" }}>{post.content}</p>
+      <p className="post-content">{post.content}</p>
 
       {post.table && (
         <div
+          className="post-table"
           dangerouslySetInnerHTML={{ __html: post.table }}
-          style={{ marginTop: "15px", overflowX: "auto" }}
         />
       )}
 
       {post.video && (
-        <div className="video-wrapper" style={{ marginTop: "25px" }}>
+        <div className="video-container">
           <iframe
-            width="100%"
-            height="350"
             src={post.video}
             title={post.title}
             frameBorder="0"
