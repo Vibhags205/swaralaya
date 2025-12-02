@@ -332,7 +332,7 @@ body {
 
 .reddit-content {
   white-space: pre-wrap;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0);
   padding: 1rem;
   border-radius: 10px;
   line-height: 1.6;
@@ -350,4 +350,67 @@ body {
   border-radius: 8px;
   margin-top: 10px;
   line-height: 1.5;
+}
+.hero {
+  position: relative;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4); /* Transparency layer */
+  backdrop-filter: blur(1px); 
+  z-index: 1;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+.fade-in {
+  animation: fadeIn 1.5s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+.navbar {
+  position: fixed;
+  width: 100%;
+  padding: 20px;
+  transition: background 0.3s ease;
+}
+
+.navbar.scrolled {
+  background: rgba(0, 0, 0, 0.603);
+  backdrop-filter: blur(6px);
+}
+.btn {
+  background: linear-gradient(135deg, #d4a038, #b5801b);
+  padding: 12px 24px;
+  border-radius: 50px;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(212,160,56,0.6);
 }
