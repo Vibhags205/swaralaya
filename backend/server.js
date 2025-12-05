@@ -8,7 +8,7 @@ require('dotenv').config();
 
 // --- CONFIGURATION & INITIALIZATION ---
 const PORT = process.env.BACKEND_PORT || 3000; 
-const SERVICE_ACCOUNT_FILENAME = process.env.SERVICE_ACCOUNT_PATH; // Value is 'serviceAccountKey.json'
+const SERVICE_ACCOUNT_FILENAME = process.env.SERVICE_ACCOUNT_PATH || 'serviceAccountKey.json'; // Default to serviceAccountKey.json
 // Allow requests from localhost (dev) and from your Vercel domain (production)
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173'; 
 
