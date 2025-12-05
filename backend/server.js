@@ -1,33 +1,48 @@
-// server.js (located at MUSIC/server.js)
+// server.js (C:\Users\gsvib\Documents\MUSIC\backend\server.js)
 
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
-require('dotenv').config(); // Load environment variables from .env
+const path = require('path');
+require('dotenv').config(); 
 
-// --- CONFIGURATION ---
+// --- CONFIGURATION & INITIALIZATION ---
 const PORT = process.env.BACKEND_PORT || 3000; 
-const SERVICE_ACCOUNT_PATH = process.env.SERVICE_ACCOUNT_PATH;
-const CLIENT_URL = 'http://localhost:5173'; // 🚨 IMPORTANT: Change if your React app uses a different port
+const SERVICE_ACCOUNT_FILENAME = process.env.SERVICE_ACCOUNT_PATH; // Value is 'serviceAccountKey.json'
+const CLIENT_URL = 'http://localhost:5173'; 
 
-// 🚨 Load your service account key file
-const serviceAccount = require(SERVICE_ACCOUNT_PATH); 
+// Resolve the absolute path to the key file, relative to the server.js file's directory
+// __dirname is the directory where server.js lives (MUSIC/backend)
+const absoluteKeyPath = path.resolve(__dirname, SERVICE_ACCOUNT_FILENAME);
 
-// --- 1. INITIALIZE FIREBASE ---
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+let db;
+let app = express();
 
-const db = admin.firestore();
-const app = express();
+try {
+    // 1. Load the service account key file using the absolute path
+    const serviceAccount = require(absoluteKeyPath); 
 
-// --- 2. MIDDLEWARES ---
+    // 2. Initialize Firebase Admin SDK
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
+    db = admin.firestore(); // Assign the database reference
+
+} catch (e) {
+    console.error(`\n🚨 FATAL ERROR: Could not initialize Firebase or load Service Account Key.`);
+    console.error(`Attempted to load key from: ${absoluteKeyPath}`);
+    console.error(`Please ensure the key file is present in the 'backend' folder and named exactly as specified in .env.`);
+    // Exit the process if Firebase can't initialize
+    process.exit(1);
+}
+
+// --- MIDDLEWARES ---
 // Enable CORS for your frontend URL
 app.use(cors({ origin: CLIENT_URL }));
 // Enable express to read JSON bodies
 app.use(express.json());
 
-// --- 3. THE /api/subscribe ENDPOINT ---
+// --- THE /api/subscribe ENDPOINT ---
 app.post('/api/subscribe', async (req, res) => {
     const { email } = req.body; 
 
@@ -41,23 +56,24 @@ app.post('/api/subscribe', async (req, res) => {
             subscribedAt: admin.firestore.FieldValue.serverTimestamp() 
         };
 
-        // Save to Firestore, using the email as the document ID
+        // Save to Firestore, using the email as the document ID to prevent duplicates
         await db.collection('subscribers').doc(email).set(newSubscriber);
 
         console.log(`New subscriber saved: ${email}`);
 
         // Success response
-        res.status(200).json({ message: "Subscribed Successfully!" });
+        res.status(200).json({ message: "Subscribed Successfully! Thanks for joining." });
 
     } catch (error) {
-        console.error("FIREBASE WRITE ERROR:", error);
-        res.status(500).json({ message: "Server error: Could not process subscription." });
+        // This catches Firebase permission errors, network issues, etc.
+        console.error("FIREBASE WRITE ERROR:", error.message);
+        res.status(500).json({ message: "Subscription failed due to server error (check Firebase logs)." });
     }
 });
 
 
-// --- 4. START THE SERVER ---
+// --- START THE SERVER ---
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Listening for calls from ${CLIENT_URL}`);
+    console.log(`\n✅ Backend Server running on http://localhost:${PORT}`);
+    console.log(`   Waiting for connections from ${CLIENT_URL}`);
 });
