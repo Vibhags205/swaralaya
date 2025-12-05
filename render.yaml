@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: swaralaya-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: BACKEND_PORT
+        value: 3000
+      - key: CLIENT_URL
+        value: https://swaralaya-six.vercel.app
+      - key: SERVICE_ACCOUNT_PATH
+        value: ./serviceAccountKey.json
