@@ -20,20 +20,37 @@ let db;
 let app = express();
 
 try {
-    // 1. Load the service account key file using the absolute path
-    const serviceAccount = require(absoluteKeyPath); 
+    // Try to load service account from file first, then fall back to env var
+    let serviceAccount;
+    
+    try {
+        // 1. Try loading from file
+        serviceAccount = require(absoluteKeyPath);
+        console.log(`✅ Loaded service account from file: ${absoluteKeyPath}`);
+    } catch (fileError) {
+        // 2. Fall back to environment variable (for Render)
+        const serviceAccountJson = process.env.SERVICE_ACCOUNT_JSON;
+        if (serviceAccountJson) {
+            serviceAccount = JSON.parse(serviceAccountJson);
+            console.log(`✅ Loaded service account from SERVICE_ACCOUNT_JSON env var`);
+        } else {
+            throw new Error(
+                `Could not load service account key.\n` +
+                `Option 1 (File): Place 'serviceAccountKey.json' in backend/ folder and set SERVICE_ACCOUNT_PATH env var\n` +
+                `Option 2 (Env): Set SERVICE_ACCOUNT_JSON env var to your service account JSON string`
+            );
+        }
+    }
 
-    // 2. Initialize Firebase Admin SDK
+    // Initialize Firebase Admin SDK
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
     });
     db = admin.firestore(); // Assign the database reference
 
 } catch (e) {
-    console.error(`\n🚨 FATAL ERROR: Could not initialize Firebase or load Service Account Key.`);
-    console.error(`Attempted to load key from: ${absoluteKeyPath}`);
-    console.error(`Please ensure the key file is present in the 'backend' folder and named exactly as specified in .env.`);
-    // Exit the process if Firebase can't initialize
+    console.error(`\n🚨 FATAL ERROR: Could not initialize Firebase`);
+    console.error(e.message);
     process.exit(1);
 }
 
